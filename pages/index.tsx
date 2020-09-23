@@ -1,25 +1,32 @@
-import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import Link from 'next/link'
-import png from 'assets/images/1.png'
+import { GetServerSideProps, NextPage } from 'next'
+import { UAParser } from 'ua-parser-js'
 
-export default function Home() {
+type Props = {
+  browser: {
+    name: string
+    version: string
+    major: string
+  }
+}
+
+const Index: NextPage<Props> = props => {
+  const { browser } = props
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          <Link href="/posts/first-post">
-            <a>第一篇文章</a>
-          </Link>
-        </h1>
-      </main>
-
-      <img src={png} />
+      <h1>你的浏览器是 {browser.name}</h1>
     </div>
   )
+}
+
+export default Index
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const ua = context.req.headers['user-agent']
+  const result = new UAParser(ua).getResult()
+  return {
+    props: {
+      browser: result.browser,
+    },
+  }
 }
